@@ -21,7 +21,7 @@ export default {
 <!-- css -->
 <style>
 body{
-  background-image: url("@/assets/海浪.jpg");
+  background-image: url("@/assets/images/小猫.jpg");
   background-size: cover;
 }
 </style>
