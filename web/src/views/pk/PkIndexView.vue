@@ -4,10 +4,39 @@
 
 <script>
 import PlayGround from '@/components/PlayGround.vue';
+import { onMounted,onUnmounted } from 'vue';
+import { useStore } from 'vuex';
 export default {
     components: {
         
         PlayGround,
+    },
+    setup() {
+        const store = useStore();
+
+        const socketUrl = `ws://localhost:3000/websocket/${store.state.user.token}`;
+
+        let socket = null;
+        //当当前组件被挂载的时候
+        onMounted(() => {
+            socket = new WebSocket(socketUrl);
+
+            socket.onopen = () => {
+                console.log("connected!");
+            };
+
+            socket.onmessage = msg => {
+                const data = JSON.parse(msg.data);
+                console.log(data);
+            };
+            socket.onclose = () =>{
+                console.log("disconnected!");
+            }
+        });
+
+        onUnmounted(()=>{
+            socket.close();
+        })
     },
 };
 </script>
