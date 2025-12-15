@@ -1,5 +1,6 @@
 package cumt.kob.backend.consumer;
 import com.alibaba.fastjson.JSONObject;
+import cumt.kob.backend.consumer.utils.Game;
 import cumt.kob.backend.consumer.utils.JwtAuthentication;
 import cumt.kob.backend.mapper.UserMapper;
 import cumt.kob.backend.pojo.User;
@@ -26,6 +27,8 @@ public class WebSocketServer {
 
     //由于不是单例模式所以不能直接通过Autowired注入
     private static UserMapper userMapper;
+
+
 
     @Autowired
     public void setUserMapper(UserMapper userMapper) {
@@ -72,16 +75,21 @@ public class WebSocketServer {
             matchpool.remove(a);
             matchpool.remove(b);
 
+            Game game = new Game(13,14,20);
+            game.createMap();
+
             JSONObject respA = new JSONObject();
             respA.put("event","start-matching");
             respA.put("opponent_username",b.getUsername());
             respA.put("opponent_photo",b.getPhoto());
+            respA.put("gamemap",game.getG());
             users.get(a.getId()).sendMessage(respA.toJSONString() );
 
             JSONObject respB = new JSONObject();
             respB.put("event","start-matching");
             respB.put("opponent_username",a.getUsername());
             respB.put("opponent_photo",a.getPhoto());
+            respB.put("gamemap",game.getG());
             users.get(b.getId()).sendMessage(respB.toJSONString() );
         }
     }

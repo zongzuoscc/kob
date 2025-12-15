@@ -41,9 +41,9 @@ export default {
                         photo: data.opponent_photo,
                     })
                     setTimeout(()=>{
-                        alert("匹配成功！对手：" + data.opponent_username);
-                        store.commit("updatePkStatus","playing");
-                    },1000);
+                        store.commit("updateStatus","playing");
+                    },100);
+                    store.commit("updateGamemap",data.gamemap);
                 }
             };
             socket.onclose = () =>{
