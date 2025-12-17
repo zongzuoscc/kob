@@ -66,10 +66,6 @@ export class Snake extends AcGameObject{
             this.cells[i]=JSON.parse(JSON.stringify(this.cells[i-1]));//深拷贝
         }
 
-        if(!this.gamemap.check_valid(this.next_cell)){//目标位置不合法
-            this.status="die";
-        }
-
     }
 
     update_move(){
