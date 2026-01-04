@@ -13,6 +13,8 @@ import java.util.List;
 public class Player {
 
     private Integer id;
+    private Integer botId; //-1表示亲自出马,否则使用一个Bot
+    private String botCode;
     private Integer sx;
     private Integer sy;
     private List<Integer> steps;

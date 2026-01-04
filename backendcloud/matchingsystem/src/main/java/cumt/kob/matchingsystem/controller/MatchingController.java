@@ -18,7 +18,8 @@ public class MatchingController {
     public String addPlayer(@RequestParam MultiValueMap<String, String> data) {
         Integer userId = Integer.parseInt(Objects.requireNonNull(data.getFirst("user_id")));
         Integer rating = Integer.parseInt(Objects.requireNonNull(data.getFirst("rating")));
-        return matchingService.addPlayer(userId, rating);
+        Integer botId = Integer.parseInt(Objects.requireNonNull(data.getFirst("bot_id")));
+        return matchingService.addPlayer(userId, rating,botId);
     }
     //multivaluemap允许一个键对应多个值，这里只需要一个值，所以用getFirst即可
     @PostMapping("/player/remove")

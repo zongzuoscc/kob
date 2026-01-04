@@ -9,8 +9,8 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>cumt.kob.matchingsystem</groupId>
-    <artifactId>matchingsystem</artifactId>
+    <groupId>cumt.kob.bootrunningsystem</groupId>
+    <artifactId>bootrunningsystem</artifactId>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -41,6 +41,13 @@
             <artifactId>lombok</artifactId>
             <version>1.18.24</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jooq/joor-java-8 -->
+        <dependency>
+            <groupId>org.jooq</groupId>
+            <artifactId>joor-java-8</artifactId>
+            <version>0.9.13</version>
         </dependency>
 
     </dependencies>
