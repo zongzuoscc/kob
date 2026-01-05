@@ -31,7 +31,7 @@ public class WebSocketServer {
     private Session session = null;
 
     //由于不是单例模式所以不能直接通过Autowired注入
-    private static UserMapper userMapper;
+    public static UserMapper userMapper;
     public static RecordMapper recordMapper;
     private static BotMapper botMapper;
 
