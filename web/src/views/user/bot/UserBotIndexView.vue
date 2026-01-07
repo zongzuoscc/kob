@@ -4,10 +4,68 @@
             <div class="col-3">
                 <div class="card" style="margin-top: 20px;">
                     <div class="card-body">
-                        <img :src="$store.state.user.photo"  alt="Bot Image" style="width: 100%;">
+                        <div style="text-align: center;">
+                            <img :src="$store.state.user.photo" alt="用户头像" class="user-photo">
+                        </div>
+                        <hr>
+                        <div style="font-size: 120%; font-weight: bold; text-align: center;">{{ $store.state.user.username }}</div>
+                        
+                        <button type="button" class="btn btn-warning" style="width: 100%; margin-top: 10px;" data-bs-toggle="modal" data-bs-target="#update-info-modal">
+                            修改信息
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <div class="modal fade" id="update-info-modal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">修改用户信息</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="update-username" class="form-label">用户名</label>
+                                <input v-model="userInfo.username" type="text" class="form-control" id="update-username" placeholder="请输入新用户名">
+                            </div>
+                            <div class="mb-3">
+                                <label for="update-photo" class="form-label">头像</label>
+                                <div class="input-group">
+                                    <input v-model="userInfo.photo" type="text" class="form-control" id="update-photo" placeholder="头像URL (可直接填写或点击上传)">
+                                    <input type="file" id="upload-file-input" style="display: none;" @change="upload_param_img" accept="image/*">
+                                    <button class="btn btn-outline-secondary" type="button" @click="trigger_upload">上传</button>
+                                </div>
+                                <div style="margin-top: 10px; text-align: center;" v-if="userInfo.photo">
+                                    <img :src="userInfo.photo" alt="预览" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover;">
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="alert alert-info" role="alert" style="padding: 5px 10px; font-size: 14px;">
+                                如需修改密码，请填写以下字段，否则请留空。
+                            </div>
+                            <div class="mb-3">
+                                <label for="update-old-password" class="form-label">原密码</label>
+                                <input v-model="userInfo.old_password" type="password" class="form-control" id="update-old-password" placeholder="修改密码时必填">
+                            </div>
+                            <div class="mb-3">
+                                <label for="update-password" class="form-label">新密码</label>
+                                <input v-model="userInfo.password" type="password" class="form-control" id="update-password" placeholder="请输入新密码">
+                            </div>
+                            <div class="mb-3">
+                                <label for="update-password-confirm" class="form-label">确认新密码</label>
+                                <input v-model="userInfo.confirmed_password" type="password" class="form-control" id="update-password-confirm" placeholder="请再次输入新密码">
+                            </div>
+                            <div class="error_message" style="color: red;">{{ userInfo.error_message }}</div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                            <button type="button" class="btn btn-primary" @click="update_info">保存修改</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-9">
                 <div class="card" style="margin-top: 20px;">
                     <div class="card-body">
@@ -16,7 +74,6 @@
                             <button type="button" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#add-bot-btn">
                                 创建Bot
                             </button>
-                            <!-- Modal -->
                             <div class="modal fade" id="add-bot-btn" tabindex="-1">
                                 <div class="modal-dialog modal-xl">
                                     <div class="modal-content">
@@ -117,13 +174,12 @@
 </template>
 
 <script>
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import $ from "jquery";
 import { useStore } from "vuex";
 import { Modal } from "bootstrap/dist/js/bootstrap";
 import { VAceEditor } from "vue3-ace-editor";
 import ace from "ace-builds/src-noconflict/ace";
-// 修改点1: 引入 Java 模式，配合你的 Java 代码
 import "ace-builds/src-noconflict/mode-java"; 
 import "ace-builds/src-noconflict/theme-textmate";
 
@@ -140,7 +196,94 @@ export default {
         const store = useStore();
         let bots = ref([]);
 
-        // 修改点2: 定义默认的 Bot 代码字符串
+        // ================== 用户信息更新 & 头像上传逻辑 ==================
+        const userInfo = reactive({
+            username: "",
+            photo: "",
+            old_password: "",
+            password: "",
+            confirmed_password: "",
+            error_message: "",
+        });
+
+        // 页面加载时，回显当前的用户名和头像
+        onMounted(() => {
+            userInfo.username = store.state.user.username;
+            userInfo.photo = store.state.user.photo;
+        });
+
+        // 触发隐藏的文件选择框
+        const trigger_upload = () => {
+            document.getElementById("upload-file-input").click();
+        }
+
+        // 处理文件上传
+        const upload_param_img = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            let formData = new FormData();
+            formData.append("file", file);
+
+            $.ajax({
+                url: "http://127.0.0.1:3000/api/user/account/photo/upload",
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+                    if (resp.error_message === "success") {
+                        userInfo.photo = resp.url; // 将 OSS 返回的 URL 填入表单
+                    } else {
+                        userInfo.error_message = resp.error_message;
+                    }
+                }
+            });
+        }
+
+        // 提交修改信息
+        const update_info = () => {
+            userInfo.error_message = "";
+            $.ajax({
+                url: "http://127.0.0.1:3000/api/user/account/update",
+                method: "POST",
+                data: {
+                    username: userInfo.username,
+                    photo: userInfo.photo,
+                    old_password: userInfo.old_password, // 只有改密码才需要，后端会判空
+                    password: userInfo.password,
+                    confirmed_password: userInfo.confirmed_password,
+                },
+                headers: {
+                    Authorization: "Bearer " + store.state.user.token,
+                },
+                success(resp) {
+                    if (resp.error_message === "success") {
+                        // 更新 Vuex 状态
+                        store.commit("updateUser", {
+                            ...store.state.user,
+                            username: userInfo.username,
+                            photo: userInfo.photo,
+                        });
+                        // 隐藏模态框
+                        Modal.getInstance("#update-info-modal").hide();
+                        // 清空密码输入框，防止下次误操作
+                        userInfo.old_password = "";
+                        userInfo.password = "";
+                        userInfo.confirmed_password = "";
+                    } else {
+                        userInfo.error_message = resp.error_message;
+                    }
+                }
+            });
+        };
+        // ==========================================================
+
+
+        // ================== Bot 增删改查逻辑 (保持原有) ==================
         const initialBotCode = `//下面是bot的示例代码，用户可以在此基础上进行修改
 package cumt.kob.botrunningsystem.utils;
 
@@ -241,7 +384,7 @@ public class Bot implements java.util.function.Supplier<Integer>{
         const botadd = reactive({
             title: "",
             description: "",
-            content: initialBotCode, // 修改点3: 初始化时使用默认代码
+            content: initialBotCode,
             error_message: ""
         });
 
@@ -277,7 +420,6 @@ public class Bot implements java.util.function.Supplier<Integer>{
                     if (resp.error_message === "success") {
                         botadd.title = "";
                         botadd.description = "";
-                        // 修改点4: 创建成功后，重置回默认代码，而不是清空
                         botadd.content = initialBotCode; 
                         Modal.getInstance("#add-bot-btn").hide();
                         refresh_bots();
@@ -337,6 +479,11 @@ public class Bot implements java.util.function.Supplier<Integer>{
             add_bot,
             update_bot,
             remove_bot,
+            // 新增的返回
+            userInfo,
+            trigger_upload,
+            upload_param_img,
+            update_info,
         }
     }
 };
@@ -347,5 +494,14 @@ div.error_message {
     color: red;
     float: left;
     line-height: 38px;
+}
+
+/* 修改点2：添加正圆形头像样式 */
+img.user-photo {
+    width: 15vh;        /* 宽度固定 */
+    height: 15vh;       /* 高度与宽度一致 */
+    border-radius: 50%; /* 圆形 */
+    object-fit: cover;  /* 填充模式：裁剪多余部分，保证不拉伸 */
+    margin-bottom: 10px;
 }
 </style>

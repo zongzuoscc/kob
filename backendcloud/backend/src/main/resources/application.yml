@@ -11,3 +11,10 @@ spring:
     password: yangyiming.com
     url: jdbc:mysql://localhost:3306/kob?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+aliyun:
+  oss:
+    endpoint: oss-cn-shanghai.aliyuncs.com
+    access-key-id:
+    access-key-secret:
+    bucket-name: kob-zongzuo

@@ -21,7 +21,7 @@
             {{$store.state.user.username}}
           </a>
           <ul class="dropdown-menu">
-            <li><router-link class="dropdown-item" :to="{name: 'user_bot_index'}">我的Bot</router-link></li>
+            <li><router-link class="dropdown-item" :to="{name: 'user_bot_index'}">个人中心</router-link></li>
             
             <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
           </ul>
