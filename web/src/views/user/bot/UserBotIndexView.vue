@@ -284,7 +284,7 @@ export default {
 
 
         // ================== Bot 增删改查逻辑 (保持原有) ==================
-        const initialBotCode = `//下面是bot的示例代码，用户可以在此基础上进行修改
+        const initialBotCode = `//下面是bot的示例代码，用户可以在此基础上进行修改，目前只支持java编程语言
 package cumt.kob.botrunningsystem.utils;
 
 import java.io.File;
