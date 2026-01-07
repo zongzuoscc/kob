@@ -69,7 +69,7 @@ public class RegisterServiceImpl implements RegisterService {
         }
 
         String encodedPassword = passwordEncoder.encode(password);
-        String photo = "https://img2.baidu.com/it/u=3422282222,2852884322&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500";
+        String photo = "https://cdn.acwing.com/media/article/image/2022/08/09/1_1db2488f17-anonymous.png";
         User user = new User();
         //插入数据库
         user.setUsername(username);

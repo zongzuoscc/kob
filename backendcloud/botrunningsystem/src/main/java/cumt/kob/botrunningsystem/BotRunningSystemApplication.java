@@ -5,9 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BootRunningSystemApplication {
+public class BotRunningSystemApplication {
     public static void main(String[] args) {
         BotRunningServiceImpl.botPool.start();
-        SpringApplication.run(BootRunningSystemApplication.class, args);
+        SpringApplication.run(BotRunningSystemApplication.class, args);
     }
 }

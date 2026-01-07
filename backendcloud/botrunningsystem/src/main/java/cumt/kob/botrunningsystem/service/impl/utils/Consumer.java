@@ -8,7 +8,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 @Component
 public class Consumer extends Thread {
@@ -36,7 +39,7 @@ public class Consumer extends Thread {
     }
 
     private String addUid(String code,String uid){//在code中的bot类名后添加uid，如果是实现docker写法则无需进行此操作
-        int k=code.indexOf(" implements cumt.kob.botrunningsystem.utils.BotInterface");
+        int k=code.indexOf(" implements java.util.function.Supplier<Integer>");
         return code.substring(0,k)+uid+code.substring(k);
     }
 
@@ -47,12 +50,20 @@ public class Consumer extends Thread {
         UUID uuid=UUID.randomUUID();
         String uid=uuid.toString().substring(0,8);
 
-        BotInterface botInterface= Reflect.compile(
+        Supplier<Integer> botInterface= Reflect.compile(
             "cumt.kob.botrunningsystem.utils.Bot"+uid,
             addUid(bot.getBotCode(),uid)
         ).create().get();
 
-        Integer direction = botInterface.nextMove(bot.getInput());
+        File file = new File("input.txt");
+        try(PrintWriter fout = new PrintWriter(file);){
+            fout.println(bot.getInput());
+            fout.flush();
+        }catch (Exception e){
+
+        }
+
+        Integer direction = botInterface.get();
 
         System.out.println("move-direction:"+bot.getUserId()+" "+direction);
 

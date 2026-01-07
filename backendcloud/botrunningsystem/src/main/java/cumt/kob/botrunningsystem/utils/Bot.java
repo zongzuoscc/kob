@@ -1,9 +1,12 @@
 package cumt.kob.botrunningsystem.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
-public class Bot implements cumt.kob.botrunningsystem.utils.BotInterface{
+public class Bot implements java.util.function.Supplier<Integer>{
 
     static class Cell{
         public int x,y;
@@ -42,7 +45,6 @@ public class Bot implements cumt.kob.botrunningsystem.utils.BotInterface{
         return res;
     }
 
-    @Override
     public Integer nextMove(String input) {
         String[] strs = input.split("#");
         int[][] g = new int[13][14];
@@ -75,6 +77,18 @@ public class Bot implements cumt.kob.botrunningsystem.utils.BotInterface{
             if(x >= 0 && x < 13 && y >= 0 && y < 14 && g[x][y] == 0){//判断越界
                 return i;
             }
+        }
+        return 0;
+    }
+
+    @Override
+    public Integer get() {
+        File file = new File("input.txt");
+        try {
+            Scanner sc = new Scanner(file);
+            return nextMove(sc.next());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
         return 0;
     }
