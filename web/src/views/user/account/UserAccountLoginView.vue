@@ -17,69 +17,83 @@
             </div>
         </div>
     </ContentField>
-
 </template>
 
 <script>
 import ContentField from '@/components/ContentField.vue';
 import { useStore } from 'vuex';
 import { ref } from 'vue';
-import router from '@/router/index';
-
+import { useRouter, useRoute } from 'vue-router';
 
 export default {
-  components: {
-    ContentField,
-  },
-  setup() {
-    const store = useStore();
-    let username = ref('');
-    let password = ref('');
-    let error_message = ref('');
+    components: {
+        ContentField,
+    },
+    setup() {
+        const store = useStore();
+        const router = useRouter();
+        const route = useRoute();
 
-    const jwt_token = localStorage.getItem("jwt_token");
-    if(jwt_token){
-        store.commit("updateToken", jwt_token);
-        store.dispatch("getinfo",{
-            success(){
-                router.push({ name: 'home' });
-                store.commit("updatePullingInfo", false);
-            },
-            error(){
-                store.commit("updatePullingInfo", false);
-            }
-        })
-    }else{
-        store.commit("updatePullingInfo", false);
-    }
+        let username = ref('');
+        let password = ref('');
+        let error_message = ref('');
 
-    const login = () =>{
-        store.dispatch("login",{
-            username: username.value,
-            password: password.value,
-            success: (resp)=>{
-                console.log(resp);
-                store.dispatch("getinfo",{
-                    success(){
+        const jwt_token = localStorage.getItem("jwt_token");
+        if (jwt_token) {
+            store.commit("updateToken", jwt_token);
+            store.dispatch("getinfo", {
+                success() {
+                    // 自动登录成功跳转
+                    if (route.query.redirect) {
+                        router.push(route.query.redirect);
+                    } else {
                         router.push({ name: 'home' });
                     }
-                });
-                router.push({ name: 'home' });
-            },
-            error: (resp)=>{
-                console.log(resp);
-                error_message.value = "用户名或密码错误"
-            }
-        })
-    }
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
+        } else {
+            store.commit("updatePullingInfo", false);
+        }
 
-    return {
-      username,
-      password,
-      error_message,
-      login,
-    }
-  },
+        const login = () => {
+            error_message.value = "";
+            store.dispatch("login", {
+                username: username.value,
+                password: password.value,
+                // 修改点：去掉了未使用的 resp 参数，避免 ESLint 报错
+                success: () => {
+                    store.dispatch("getinfo", {
+                        success() {
+                            // 手动登录成功跳转
+                            if (route.query.redirect) {
+                                router.push(route.query.redirect);
+                            } else {
+                                router.push({ name: 'home' });
+                            }
+                        },
+                        // 修改点：补充 error 回调，防止 getinfo 失败时 store 报错
+                        error() {
+                            error_message.value = "系统异常，请稍后重试";
+                        }
+                    });
+                },
+                error: () => {
+                    error_message.value = "用户名或密码错误";
+                }
+            })
+        }
+
+        return {
+            username,
+            password,
+            error_message,
+            login,
+        }
+    },
 };
 </script>
 
@@ -87,6 +101,7 @@ export default {
 button {
     width: 100%;
 }
+
 div.error_message {
     color: red;
     margin-bottom: 10px;
